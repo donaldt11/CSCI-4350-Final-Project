@@ -14,6 +14,7 @@ def main():
     agent = QLearningAgent(grid_size=env.grid_size)
 
     rewards_per_episode = []
+    steps_per_episode = []
     successes = []
 
     for episode in range(EPISODES):
@@ -43,6 +44,7 @@ def main():
         agent.decay_epsilon()
 
         rewards_per_episode.append(total_reward)
+        steps_per_episode.append(env.steps)
         successes.append(int(success))
 
         if (episode + 1) % 500 == 0:
@@ -51,15 +53,22 @@ def main():
             print(
                 f"Episode {episode + 1}/{EPISODES} | "
                 f"Reward: {total_reward:6.1f} | "
+                f"Steps: {env.steps:3} | "
                 f"Success rate: {recent_success_rate:5.1f}% | "
                 f"Epsilon: {agent.epsilon:.3f}"
             )
 
     Path("models").mkdir(exist_ok=True)
+    Path("data").mkdir(exist_ok=True)
+
     np.save("models/q_table.npy", agent.q_table)
+    np.save("data/rewards.npy", np.array(rewards_per_episode))
+    np.save("data/steps.npy", np.array(steps_per_episode))
+    np.save("data/successes.npy", np.array(successes))
 
     print("\nTraining complete.")
     print("Saved Q-table to models/q_table.npy")
+    print("Saved training metrics to data/")
 
 
 if __name__ == "__main__":
